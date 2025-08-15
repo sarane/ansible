@@ -1,0 +1,32 @@
+---
+- name: Setup Apache
+  hosts: web
+  become: yes
+
+  vars:
+    - app_name: apache2
+      svc_name: apache2
+
+  tasks:
+    - name: Install apache
+      apt:
+        name: "{{ app_name }}"
+        state: present
+      
+    - name: start Service
+      service:
+        name: "{{ svc_name }}"
+        state: started
+        enabled: yes
+  
+    - name: Copy template file for index
+      template:
+        src: /home/ubuntu/ansible/ansible-project/template/index_html.j2
+        dest: /var/www/html/index.html
+      notify: restart apache
+
+  handlers:
+    - name: restart apache
+      service:
+        name: "{{ svc_name }}"
+        state: restarted

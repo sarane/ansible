@@ -1,0 +1,156 @@
+---
+- name: Setup Apache
+  hosts: web
+  become: yes
+
+  vars:
+    - app_name: apache2
+      svc_name: apache2
+
+  tasks:
+    - name: Install apache
+      apt:
+        name: "{{ app_name }}"
+        state: present
+      
+    - name: start Service
+      service:
+        name: "{{ svc_name }}"
+        state: started
+        enabled: yes
+  
+    - name: Copy template file for index
+      template:
+        src: /home/ubuntu/ansible/ansible-project/template/index_html.j2
+        dest: /var/www/html/index.html
+      notify: restart apache
+
+  handlers:
+    - name: restart apache
+      service:
+        name: "{{ svc_name }}"
+        state: restarted
+---
+- name: Assign groups to users
+  hosts: web
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: Assign group to user
+      ansible.builtin.user:
+        name: "{{ item.user }}"
+        groups: "{{ item.groups }}"
+        append: yes
+      loop:
+        - { user: 'sagar', groups: 'ubuntu' }
+        - { user: 'anushka', groups: 'admin' }
+      when: item.user is defined and item.groups is defined
+      tags: assign_groups
+---
+- name: Loop example 1
+  hosts: web
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Install applications
+      apt:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - curl
+        - unzip
+---
+- name: Example for loop dictionary
+  hosts: web
+  become: yes
+  tasks:
+    - name: Crate user
+      user:
+        name: "{{ item.name }}"
+        shell: "{{ item.shell }}"
+      loop:
+        - { name: 'sagar', shell: '/bin/bash' }
+        - { name: 'anushka', shell: '/bin/bash' }
+---
+- name: Example to update files using loop
+  become: yes
+  hosts: web
+  tasks:
+    - name: update files
+      copy:
+        src: "{{ item.src }}"
+        dest: "/etc/{{ item.dest }}"
+      loop:
+        - { src: "files/hosts" }
+        - { dest: "files/resolv.conf" }
+---
+- name: Install unzip and  register variable
+  become: yes
+  hosts: web
+  tasks:
+   - name: Install package
+     apt:
+      name: unzip
+      state: present
+     register: unzip_install_result 
+   - name: Dislay installation result
+     debug:
+      var: unzip_install_result.changed
+---
+- name: Install unzip and  register variable
+  become: yes
+  hosts: web
+  tasks:
+   - name: Install package
+     apt:
+      name: unzip
+      state: present
+     register: unzip_install_result 
+   - name: package is already installed
+     debug:
+      msg: "packege is already installed" 
+     when: not unzip_install_result.changed
+   - name: Package was jus installed
+     debug:
+      msg: "package just installed"
+     when: unzip_install_result.changed
+---
+- name: Install unzip and  register variable
+  become: yes
+  hosts: web
+  tasks:
+   - name: Install package
+     apt:
+      name: "{{ item }}"
+      state: present
+     register: install_result
+     loop:
+      - tree
+      - curl
+      - unzip
+   - name: package is already installed
+     debug:
+      msg: "{{ result.item }} is already installed" 
+     when: not result.changed
+     loop: "{{ install_result.results }}"
+     loop_control: 
+      loop_var: result
+   - name: Package was jus installed
+     debug:
+      msg: "{{ result.item }} just installed"
+     when: result.changed
+     loop: "{{ install_result.results }}"
+     loop_control:
+      loop_var: result
+---
+- name: Check url using until
+  hosts: web
+  tasks:
+    - name: Check url
+      uri:
+        url: http://localhost
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 5
+      delay: 3

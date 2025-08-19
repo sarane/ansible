@@ -1,0 +1,12 @@
+---
+- name: Check url using until
+  hosts: web
+  tasks:
+    - name: Check url
+      uri:
+        url: http://localhost
+        status_code: 200
+      register: result
+      until: result.status == 200
+      retries: 5
+      delay: 3

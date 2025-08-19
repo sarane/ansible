@@ -1,0 +1,16 @@
+---
+- name: Assign groups to users
+  hosts: web
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: Assign group to user
+      ansible.builtin.user:
+        name: "{{ item.user }}"
+        groups: "{{ item.groups }}"
+        append: yes
+      loop:
+        - { user: 'sagar', groups: 'ubuntu' }
+        - { user: 'anushka', groups: 'admin' }
+      when: item.user is defined and item.groups is defined
+      tags: assign_groups

@@ -1,0 +1,12 @@
+---
+- name: Example for loop dictionary
+  hosts: web
+  become: yes
+  tasks:
+    - name: Crate user
+      user:
+        name: "{{ item.name }}"
+        shell: "{{ item.shell }}"
+      loop:
+        - { name: 'sagar', shell: '/bin/bash' }
+        - { name: 'anushka', shell: '/bin/bash' }

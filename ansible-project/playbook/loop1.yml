@@ -1,0 +1,13 @@
+---
+- name: Loop example 1
+  hosts: web
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Install applications
+      apt:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - curl
+        - unzip

@@ -1,0 +1,12 @@
+---
+- name: Example to update files using loop
+  become: yes
+  hosts: web
+  tasks:
+    - name: update files
+      copy:
+        src: "{{ item.src }}"
+        dest: "/etc/{{ item.dest }}"
+      loop:
+        - { src: "files/hosts" }
+        - { dest: "files/resolv.conf" }

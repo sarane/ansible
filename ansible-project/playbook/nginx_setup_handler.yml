@@ -1,0 +1,26 @@
+---
+- name: Install nginx and restart when config change using handler
+  hosts: web
+  become: yes
+  tasks:
+    - name: Install nginx
+      apt:
+        name: nginx
+        state: present
+
+    - name: Restart nginx
+      service:
+        name: nginx
+        state: started
+
+    - name: Copy content to index.html
+      copy:
+        content: "This is my index file"
+        dest: /var/www/html/index.html
+      notify: restart nginx
+
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted

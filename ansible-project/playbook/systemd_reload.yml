@@ -1,0 +1,19 @@
+---
+- name: Change in /etc/hosts trigeres  a systemd daemon reload
+  become: yes
+  hosts: web
+  tasks:
+    - name: Replace /etc/hosts entry with our own
+      lineinfile:
+        path: /etc/hosts
+        regexp: '^127\.0\.0\.1'
+        line: 127.0.0.1 localhost sagar.example.com
+        mode: '0644'
+        owner: root
+        group: root
+      notify: systemd reload
+
+  handlers:
+    - name: systemd reload
+      systemd_service:
+        daemon_reload: true

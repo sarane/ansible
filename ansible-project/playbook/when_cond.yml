@@ -1,0 +1,11 @@
+---
+- name: Install apache2 when os is ubuntu
+  hosts: web
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Install apache2 with when
+      apt:
+        name: apache2
+        state: present
+      when: ansible_os_family == "Debian" 

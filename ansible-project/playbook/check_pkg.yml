@@ -1,0 +1,13 @@
+---
+- name: Check if Package is installed and installed if that is true
+  hosts: web
+  become: yes
+  gather_facts: yes
+  tasks:
+    - name: Check Package
+      shell: dpkg -l | grep apache2
+      register: chk_pkg
+    
+    - name: Show status
+      debug:
+        var: chk_pkg

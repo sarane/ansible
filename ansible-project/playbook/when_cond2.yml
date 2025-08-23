@@ -1,0 +1,22 @@
+---
+- name: Install unzip with condition
+  hosts: web
+  become: yes
+  vars:
+    install_unzip: true
+  tasks:
+    - name: Install unzip if variable is true
+      apt:
+        name: unzip
+        state: present
+      when: install_unzip
+      register: install_result
+
+    - name: Show msg
+      debug:
+        msg: install_unzip
+
+    - name: Diplay result
+      debug:
+        msg: "Installation is successful"
+      when: install_result.failed == true

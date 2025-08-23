@@ -1,0 +1,15 @@
+---
+- name: Check if port 80  is open
+  hosts: web
+  become: yes
+  tasks:
+    - name: Check port 80
+      command: netstat -tuln
+      register: chk_port
+      changed_when: false
+      failed_when: "'80' not in chk_port.stdout"
+      when: ansible_os_family == 'Debian'
+
+    - name: Show result
+      debug:
+        var: chk_port

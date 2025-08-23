@@ -1,0 +1,11 @@
+---
+- name: When multiple condition
+  hosts: web
+  become: yes
+  tasks:
+    - name: Install curl with multiple condition
+      apt:
+        name: curl
+        state: present
+      when: ansible_distribution == "Ubuntu" and
+            ansible_os_family == "Debian"
